@@ -20,6 +20,16 @@ The game combines luck, competition, and Java learning in a fun board-game style
 7. Players take turns rolling the dice.
 8. The first player to reach position 100 wins the game.
 
+## How to Start the Game
+
+Open a terminal in the project folder and run:
+
+```bash
+java -cp "build\\classes;src" Welcome
+```
+
+This command opens the Welcome screen. From there, click **RULES** and then **Start!** to begin.
+
 ## Game Features
 
 - Two-player gameplay
