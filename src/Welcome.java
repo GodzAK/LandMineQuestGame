@@ -1,96 +1,105 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import javax.imageio.ImageIO;
 
 public class Welcome extends JFrame {
+
     public Welcome() {
-        // Frame setup
-        setTitle("Welcome to Land Mine Quest");
-        setSize(800, 600);
+        setTitle("LandMineQuest");
+        setSize(820, 640);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
-        setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Godwin Dela Cruz\\Documents\\NetBeansProjects\\LandMine\\src\\logo2.png"));
+        setIconImage(loadIcon());
 
-        // Main panel
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        panel.setBackground(Color.WHITE);
+        BackdropPanel root = new BackdropPanel();
+        root.setLayout(new GridBagLayout());
+        setContentPane(root);
 
-        // Text area
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Serif", Font.PLAIN, 15));
-        textArea.setForeground(Color.BLACK);
-        textArea.setBackground(Color.WHITE);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setText("Introducing \"LandMineQuest\" – a thrilling game of strategy and knowledge where two players embark on a journey "
-                + "to reach the coveted destination: 100. In this game, luck, wit, and quick thinking are key as players navigate a perilous"
-                + " path littered with landmines, each one presenting a challenge to their intellect. As the players roll the dice, their fate"
-                + " unfolds with each step they take. The board is marked with numbers, each representing a potential landing spot. But beware,"
-                + " scattered throughout are treacherous landmines lying in wait. When a player lands on a landmine, they are confronted with a"
-                + " question, testing their knowledge across various subjects. The rules are simple yet cunning – answer correctly, and you'll"
-                + " leap forward, gaining an advantage by moving three steps ahead. However, a wrong answer brings consequences, "
-                + "sending you tumbling back, the deduction leaving you strategizing your next move. Every turn is a gamble, every decision "
-                + "critical. With each question answered, players inch closer to their goal, but the path is fraught with uncertainty. Will you"
-                + " rise to the challenge, outsmart your opponent, and emerge victorious in the quest to conquer the landmines and reach the"
-                + " pinnacle of 100? Only time will tell in this high-stakes game of LandMineQuest.");
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        panel.add(scrollPane, BorderLayout.NORTH);
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setOpaque(true);
+        card.setBackground(Theme.PANEL);
+        card.setBorder(BorderFactory.createEmptyBorder(28, 34, 28, 34));
+        card.setMaximumSize(new Dimension(640, 560));
+        card.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Image panel
-        BufferedImage image = loadImage("logo2.png");
-        JPanel imagePanel = new JPanel(new GridBagLayout());
-        imagePanel.setOpaque(false);
-        if (image != null) {
-            ImageIcon scaledIcon = new ImageIcon(image.getScaledInstance(500, 250, Image.SCALE_SMOOTH));
-            imagePanel.add(new JLabel(scaledIcon));
-        } else {
-            imagePanel.add(new JLabel("Error loading image!", JLabel.CENTER));
+        BufferedImage logo = loadImage("logo2.png");
+        if (logo != null) {
+            ImageIcon icon = new ImageIcon(logo.getScaledInstance(220, 220, Image.SCALE_SMOOTH));
+            JLabel logoLabel = new JLabel(icon);
+            logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            card.add(logoLabel);
+            card.add(Box.createRigidArea(new Dimension(0, 14)));
         }
-        panel.add(imagePanel, BorderLayout.CENTER);
 
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setOpaque(false);
+        JLabel title = new JLabel("LandMineQuest");
+        title.setFont(Theme.TITLE_FONT);
+        title.setForeground(Theme.NAVY);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(title);
+        card.add(Box.createRigidArea(new Dimension(0, 4)));
 
-        // Start button
-        JButton startButton = new JButton("RULES");
-        styleButton(startButton, new Color(60, 179, 113));
-        startButton.addActionListener(e -> {
-            playSound("mouseclick.wav");
+        JLabel subtitle = new JLabel("A trivia race across a minefield of Java questions");
+        subtitle.setFont(Theme.BODY_FONT);
+        subtitle.setForeground(Theme.TEXT_MUTED);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(subtitle);
+        card.add(Box.createRigidArea(new Dimension(0, 18)));
+
+        JTextArea blurb = new JTextArea(
+                "Two players race from cell 1 to cell 100. Roll the dice each turn, and watch out "
+                + "for landmine cells - land on one and you'll face a Java trivia question. Answer "
+                + "correctly to leap 3 cells ahead, or get it wrong and slide 3 cells back. "
+                + "First to reach 100 wins the quest!");
+        blurb.setFont(Theme.BODY_FONT);
+        blurb.setForeground(Theme.TEXT_DARK);
+        blurb.setLineWrap(true);
+        blurb.setWrapStyleWord(true);
+        blurb.setOpaque(false);
+        blurb.setEditable(false);
+        blurb.setFocusable(false);
+        blurb.setAlignmentX(Component.CENTER_ALIGNMENT);
+        blurb.setMaximumSize(new Dimension(540, 130));
+        card.add(blurb);
+        card.add(Box.createRigidArea(new Dimension(0, 22)));
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 0));
+        buttonRow.setOpaque(false);
+
+        RoundedButton rulesButton = new RoundedButton("Rules & Start", Theme.INDIGO);
+        rulesButton.addActionListener(e -> {
+            SoundManager.play("mouseclick.wav");
             startGame();
         });
-        buttonPanel.add(startButton);
+        buttonRow.add(rulesButton);
 
-        // Quit button
-        JButton quitButton = new JButton("Quit");
-        styleButton(quitButton, new Color(220, 20, 60));
+        RoundedButton quitButton = new RoundedButton("Quit", Theme.DANGER);
         quitButton.addActionListener(e -> {
-            playSound("mouseclick.wav");
+            SoundManager.play("mouseclick.wav");
             quitGame();
         });
-        buttonPanel.add(quitButton);
+        buttonRow.add(quitButton);
 
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        add(panel);
+        card.add(buttonRow);
+        root.add(card);
         setVisible(true);
     }
 
-    private void styleButton(JButton button, Color color) {
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
+    private void startGame() {
+        new Menu();
+        dispose();
+    }
+
+    private void quitGame() {
+        int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to quit?",
+                "Confirm Exit", JOptionPane.YES_NO_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }
 
     private BufferedImage loadImage(String fileName) {
@@ -102,29 +111,20 @@ public class Welcome extends JFrame {
         }
     }
 
-    private void playSound(String soundFileName) {
-        try {
-            URL url = getClass().getResource(soundFileName);
-            if (url != null) {
-                AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioStream);
-                clip.start();
-            }
-        } catch (Exception e) {
-            // Error handling
-        }
+    private Image loadIcon() {
+        BufferedImage img = loadImage("logo2.png");
+        return img != null ? img : new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     }
 
-    private void startGame() {
-        new Menu();
-        dispose();
-    }
-
-    private void quitGame() {
-        int response = JOptionPane.showConfirmDialog(this, "Are you sure you want to quit?", "Confirm Exit", JOptionPane.YES_NO_OPTION);
-        if (response == JOptionPane.YES_OPTION) {
-            System.exit(0);
+    /** Panel that paints the navy-to-indigo gradient behind everything. */
+    private static class BackdropPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            Theme.enableAA(g2d);
+            g2d.setPaint(Theme.backdrop(getWidth(), getHeight()));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -132,5 +132,3 @@ public class Welcome extends JFrame {
         SwingUtilities.invokeLater(Welcome::new);
     }
 }
-
-
